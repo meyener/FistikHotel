@@ -2,21 +2,19 @@ package com.yener.fistikhotel.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.random.RandomGeneratorFactory;
 
 @Entity
 @Data
 @AllArgsConstructor
+@Builder
 public class Room {
 
     @Id
@@ -26,7 +24,7 @@ public class Room {
     private BigDecimal roomPrice;
     private boolean isBooked=false;
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    private List<BookedRoom> bookings;
+    private List<Booking> bookings;
     @Lob
     private Blob photo;
 
@@ -34,14 +32,14 @@ public class Room {
         this.bookings = new ArrayList<>();
     }
 
-    public void addBooking(BookedRoom bookedRoom) {
+    public void addBooking(Booking booking) {
         if (bookings == null) {
             bookings=new ArrayList<>();
         }
-        bookings.add(bookedRoom);
-        bookedRoom.setRoom(this);
+        bookings.add(booking);
+        booking.setRoom(this);
         isBooked=true;
         String bookingCode = RandomStringUtils.randomNumeric(10);
-        bookedRoom.setBookingConfirmationCode(bookingCode);
+        booking.setBookingConfirmationCode(bookingCode);
     }
 }

@@ -24,4 +24,13 @@ public class BookingResponse {
     private String bookingConfirmationCode;
     private RoomResponse room;
 
+    public static BookingResponse returnBookingResponseByOnly4params(Long bookingId,LocalDate checkInDate,LocalDate checkOutDate,String bookingConfirmationCode){
+        return BookingResponse.builder()
+                .bookingId(bookingId)
+                .checkInDate(checkInDate)
+                .checkOutDate(checkOutDate)
+                .bookingConfirmationCode(bookingConfirmationCode)
+                .build();
+    }
+
 }
