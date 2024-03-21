@@ -74,6 +74,12 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public Room getRoomById(Long roomId) {
+        Optional<Room> room = roomRepository.findById(roomId);
+        return room.orElseThrow(()-> new RoomException(""));
+    }
+
+    @Override
     public Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice, MultipartFile photo) throws IOException, SQLException {
 
         byte[] photoBytes = photo != null && !photo.isEmpty() ?

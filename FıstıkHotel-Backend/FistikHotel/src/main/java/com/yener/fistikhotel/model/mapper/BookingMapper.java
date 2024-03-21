@@ -2,7 +2,9 @@ package com.yener.fistikhotel.model.mapper;
 
 import com.yener.fistikhotel.exception.InvalidBookingRequestException;
 import com.yener.fistikhotel.model.Booking;
+import com.yener.fistikhotel.model.Room;
 import com.yener.fistikhotel.model.response.BookingResponse;
+import com.yener.fistikhotel.model.response.RoomResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -22,6 +24,28 @@ public class BookingMapper {
                 .numOfAdults(booking.getNumOfAdults())
                 .numOfChildren(booking.getNumOfChildren())
                 .room(RoomMapper.ROOM_MAPPER.toResponse(booking.getRoom(), booking.getRoom().getBookings()))
+                .guestEmail(booking.getGuestEmail())
+                .totalNumOfGuest(booking.getTotalNumOfGuest())
+                .checkInDate(booking.getCheckInDate())
+                .checkOutDate(booking.getCheckOutDate())
+                .guestFullName(booking.getGuestFullName())
+                .build();
+
+    }
+
+    public BookingResponse toResponseSimple(Booking booking, Room theRoom)  {
+
+        RoomResponse room = RoomResponse.returnRoomResponseByOnly3params(
+                theRoom.getId(),
+                theRoom.getRoomType(),
+                theRoom.getRoomPrice());
+
+        return BookingResponse.builder()
+                .bookingId(booking.getBookingId())
+                .bookingConfirmationCode(booking.getBookingConfirmationCode())
+                .numOfAdults(booking.getNumOfAdults())
+                .numOfChildren(booking.getNumOfChildren())
+                .room(room)
                 .guestEmail(booking.getGuestEmail())
                 .totalNumOfGuest(booking.getTotalNumOfGuest())
                 .checkInDate(booking.getCheckInDate())

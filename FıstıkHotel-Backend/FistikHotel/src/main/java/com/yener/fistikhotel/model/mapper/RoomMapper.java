@@ -37,7 +37,7 @@ public class RoomMapper {
                 throw new PhotoRetrievalException("Error retrieving photo");
             }
         }
-        return RoomResponse.returnRoomResponseByOnly4params(room.getId(),
+        return RoomResponse.returnRoomResponseByOnly6params(room.getId(),
                 room.getRoomType(), room.getRoomPrice(),
                 room.isBooked(), null, bookingInfo);
     }
