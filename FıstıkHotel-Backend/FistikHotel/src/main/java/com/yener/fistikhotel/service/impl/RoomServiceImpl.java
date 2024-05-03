@@ -19,7 +19,6 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -43,12 +42,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     public byte[] getRoomPhotoByRoomId(Long roomId) throws SQLException {
-        Optional<Room> theRoom = roomRepository.findById(roomId);
-        if(theRoom.isEmpty()){
-            throw new ResourceNotFoundException("Sorry, Room not found!");
-        }
-        Blob photoBlob = theRoom.get().getPhoto();
-        if(photoBlob != null){
+        Room theRoom = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sorry, Room not found!"));
+
+        Blob photoBlob = theRoom.getPhoto();
+        if (photoBlob != null) {
             return photoBlob.getBytes(1, (int) photoBlob.length());
         }
         return new byte[0];
@@ -56,48 +54,42 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomResponse> getAllRooms() {
-        return roomRepository.findAll().stream().map(obj-> {
+        return roomRepository.findAll().stream().map(obj -> {
             try {
-                return RoomMapper.ROOM_MAPPER.toResponse(obj,obj.getBookings());
+                return RoomMapper.ROOM_MAPPER.toResponse(obj, obj.getBookings());
             } catch (SQLException | IOException e) {
-                throw new RoomException(e.getMessage());
+                throw new RoomException("getAllRooms error room: " + obj);
             }
         }).toList();
     }
 
     @Override
-    public void deleteRoom(Long roomId) {
-        Optional<Room> theRoom = roomRepository.findById(roomId);
-        if(theRoom.isPresent()){
-            roomRepository.deleteById(roomId);
-        }
+    public void deleteRoom(Long roomId)  {
+        getRoomById(roomId);
+        roomRepository.deleteById(roomId);
+
     }
 
     @Override
-    public Room getRoomById(Long roomId) {
-        Optional<Room> room = roomRepository.findById(roomId);
-        return room.orElseThrow(()-> new RoomException(""));
+    public Room getRoomById(Long roomId)  {
+        return roomRepository.findById(roomId)
+                .orElseThrow(() -> new RoomException("Room is not exist id :"+roomId));
     }
+
 
     @Override
     public Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice, MultipartFile photo) throws IOException, SQLException {
 
         byte[] photoBytes = photo != null && !photo.isEmpty() ?
                 photo.getBytes() : getRoomPhotoByRoomId(roomId);
-        Blob photoBlob = photoBytes != null && photoBytes.length >0 ? new SerialBlob(photoBytes): null;
 
-        Room room = roomRepository.findById(roomId).get();
+        Blob photoBlob = photoBytes != null && photoBytes.length > 0 ? new SerialBlob(photoBytes) : null;
+
+        Room room = checkAndReturnRoom(roomId,roomType,roomPrice,photoBytes);
         room.setPhoto(photoBlob);
-        if (roomType != null) room.setRoomType(roomType);
-        if (roomPrice != null) room.setRoomPrice(roomPrice);
-        if (photoBytes != null && photoBytes.length > 0) {
-            try {
-                room.setPhoto(new SerialBlob(photoBytes));
-            } catch (SQLException ex) {
-                throw new InternalServerException("Fail updating room");
-            }
-        }
-        return roomRepository.save(room);    }
+        return room;
+    }
+
 
     @Override
     public List<RoomResponse> getAvailableRooms(LocalDate checkInDate, LocalDate checkOutDate, String roomType) {
@@ -105,6 +97,24 @@ public class RoomServiceImpl implements RoomService {
         return RoomMapper.ROOM_MAPPER.roomResponseList(rooms);
     }
 
+    private Room checkAndReturnRoom(Long roomId,String roomType, BigDecimal roomPrice,byte[] photoBytes) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new RoomException("Roo"));
+
+        if (roomType != null) {
+            room.setRoomType(roomType);
+        }
+        if (roomPrice != null) {
+            room.setRoomPrice(roomPrice);
+        }
+        if (photoBytes != null && photoBytes.length > 0) {
+            try {
+                room.setPhoto(new SerialBlob(photoBytes));
+            } catch (SQLException ex) {
+                throw new InternalServerException("Fail updating room");
+            }
+        }
+        return room;
+    }
 
     private Room getPreparedRoom(String roomType, BigDecimal roomPrice, byte[] photoBytes) {
         Blob photoBlob;

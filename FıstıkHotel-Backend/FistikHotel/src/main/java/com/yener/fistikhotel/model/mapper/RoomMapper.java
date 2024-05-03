@@ -39,7 +39,7 @@ public class RoomMapper {
         }
         return RoomResponse.returnRoomResponseByOnly6params(room.getId(),
                 room.getRoomType(), room.getRoomPrice(),
-                room.isBooked(), null, bookingInfo);
+                room.isBooked(), photoBytes, bookingInfo);
     }
 
     public List<RoomResponse> roomResponseList(List<Room> rooms) {

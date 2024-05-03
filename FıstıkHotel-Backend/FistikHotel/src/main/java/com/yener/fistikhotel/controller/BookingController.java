@@ -6,6 +6,7 @@ import com.yener.fistikhotel.model.response.BookingResponse;
 import com.yener.fistikhotel.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping("/all-bookings")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<BookingResponse>> getAllBookings() {
         List<BookingResponse> bookingResponses = bookingService.getAllBookings();
         return ResponseEntity.ok(bookingResponses);

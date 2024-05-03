@@ -1,24 +1,22 @@
 package com.yener.fistikhotel.controller;
 
+
 import com.yener.fistikhotel.model.Room;
 import com.yener.fistikhotel.model.mapper.RoomMapper;
 import com.yener.fistikhotel.model.response.RoomResponse;
-import com.yener.fistikhotel.service.impl.RoomServiceImpl;
+import com.yener.fistikhotel.service.RoomService;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin("http://localhost:5173/")
@@ -27,9 +25,10 @@ import java.util.List;
 @RequestMapping("/rooms")
 public class RoomController {
 
-    private final RoomServiceImpl roomService;
+    private final RoomService roomService;
 
     @PostMapping("/add/new-room")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<RoomResponse> addNewRoom(
             @RequestParam("photo") MultipartFile photo,
             @RequestParam("roomType") String roomType,
@@ -49,12 +48,21 @@ public class RoomController {
     }
 
     @DeleteMapping("/delete/room/{roomId}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Long roomId) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long roomId) throws SQLException, IOException {
         roomService.deleteRoom(roomId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<RoomResponse> getRoomById(@PathVariable Long roomId) throws SQLException, IOException {
+        Room room = roomService.getRoomById(roomId);
+        RoomResponse response = RoomMapper.ROOM_MAPPER.toResponse(room, room.getBookings());
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/update/{roomId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<RoomResponse> updateRoom(@PathVariable Long roomId,
                                                    @RequestParam(required = false) String roomType,
                                                    @RequestParam(required = false) BigDecimal roomPrice,
@@ -68,7 +76,7 @@ public class RoomController {
     public ResponseEntity<List<RoomResponse>> getAvailableRooms(
             @RequestParam("checkInDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
             @RequestParam("checkOutDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate checkOutDate,
-            @RequestParam("roomType") String roomType) throws SQLException {
+            @RequestParam("roomType") String roomType) {
         List<RoomResponse> availableRooms = roomService.getAvailableRooms(checkInDate, checkOutDate, roomType);
         return ResponseEntity.ok(availableRooms);
         }

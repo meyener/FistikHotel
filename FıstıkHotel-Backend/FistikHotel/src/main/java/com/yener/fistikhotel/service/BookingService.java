@@ -3,6 +3,8 @@ package com.yener.fistikhotel.service;
 import com.yener.fistikhotel.model.Booking;
 import com.yener.fistikhotel.model.response.BookingResponse;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface BookingService {
