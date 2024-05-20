@@ -6,9 +6,9 @@ const MainHeader = () => {
 			<div className="overlay"></div>
 			<div className="animated-texts overlay-content">
 				<h1>
-					Welcome to <span className="hotel-color"> lakeSide Hotel</span>
+					<i>Welcome to</i> <span className="hotel-color"> <i>Fıstık Hotel</i></span>
 				</h1>
-				<h4>Experience the Best Hospitality in Town</h4>
+				<h4>Experience the Best Hospitality in Gaziantep</h4>
 			</div>
 		</header>
 	)
