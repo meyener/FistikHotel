@@ -4,7 +4,6 @@ import com.yener.fistikhotel.exception.UserAlreadyExistsException;
 import com.yener.fistikhotel.exception.UserException;
 import com.yener.fistikhotel.model.Role;
 import com.yener.fistikhotel.model.User;
-import com.yener.fistikhotel.repository.RoleRepository;
 import com.yener.fistikhotel.repository.UserRepository;
 import com.yener.fistikhotel.service.RoleService;
 import com.yener.fistikhotel.service.UserService;
@@ -24,7 +23,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleService roleRepository;
+    private final RoleService roleService;
 
     @Override
     public User registerUser(User user) {
@@ -33,7 +32,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         log.info(user.getPassword());
-        Role userRole = roleRepository.findByName("ROLE_USER");
+        Role userRole = roleService.findByName("ROLE_USER");
         user.setRoles(Collections.singletonList(userRole));
         return userRepository.save(user);
     }
@@ -47,10 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(String email) {
         getUser(email);
-
         userRepository.deleteByEmail(email);
-
-
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.yener.fistikhotel.model.request.LoginRequest;
 import com.yener.fistikhotel.model.response.JwtResponse;
 import com.yener.fistikhotel.security.jwt.JwtUtils;
 import com.yener.fistikhotel.security.user.HotelUserDetails;
+import com.yener.fistikhotel.service.RoleService;
 import com.yener.fistikhotel.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +34,13 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final RoleService roleService;
 
     @PostMapping("/register-user")
     public ResponseEntity<?> registerUser(@RequestBody User user){
         try{
-            userService.registerUser(user);
+            User createdUser = userService.registerUser(user);
+            roleService.assignRoleToUser(createdUser.getId(), 1L);
             return ResponseEntity.ok("Registration successful!");
 
         }catch (UserAlreadyExistsException e){

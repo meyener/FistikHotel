@@ -2,23 +2,23 @@ package com.yener.fistikhotel.service.impl;
 
 import com.yener.fistikhotel.exception.RoleAlreadyExistException;
 import com.yener.fistikhotel.exception.UserAlreadyExistsException;
+import com.yener.fistikhotel.exception.UserException;
 import com.yener.fistikhotel.model.Role;
 import com.yener.fistikhotel.model.User;
 import com.yener.fistikhotel.repository.RoleRepository;
+import com.yener.fistikhotel.repository.UserRepository;
 import com.yener.fistikhotel.service.RoleService;
-import com.yener.fistikhotel.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public List<Role> getRoles() {
@@ -48,7 +48,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public User removeUserFromRole(Long userId, Long roleId) {
-        User user = userService.findById(userId);
+        User user = getUser(userId);
         Role role = findRoleById(roleId);
         if (role.getUsers().contains(user)) {
             role.removeUserFromRole(user);
@@ -58,9 +58,13 @@ public class RoleServiceImpl implements RoleService {
         throw new UsernameNotFoundException("User not found");
     }
 
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UserException("User is not exist"));
+    }
+
     @Override
     public User assignRoleToUser(Long userId, Long roleId) {
-        User user = findUserById(userId);
+        User user = getUser(userId);
         Role role = findRoleById(roleId);
         if (user.getRoles().contains(role)) {
             throw new UserAlreadyExistsException(
@@ -77,10 +81,6 @@ public class RoleServiceImpl implements RoleService {
         Role role = findRoleById(roleId);
         role.removeAllUsersFromRole();
         return roleRepository.save(role);
-    }
-
-    public User findUserById(Long userId) {
-        return userService.findById(userId);
     }
 
     public Role findRoleById(Long userId) {
