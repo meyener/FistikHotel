@@ -1,9 +1,7 @@
 package com.yener.fistikhotel.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.math.BigDecimal;
@@ -12,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class Room {

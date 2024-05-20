@@ -1,6 +1,7 @@
 package com.yener.fistikhotel.service.impl;
 
 import com.yener.fistikhotel.exception.UserAlreadyExistsException;
+import com.yener.fistikhotel.exception.UserException;
 import com.yener.fistikhotel.model.Role;
 import com.yener.fistikhotel.model.User;
 import com.yener.fistikhotel.repository.RoleRepository;
@@ -57,4 +58,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    @Override
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(()-> new UserException("No id : "+id));
+    }
+
+
 }
