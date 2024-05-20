@@ -3,6 +3,7 @@ package com.yener.fistikhotel.service.impl;
 import com.yener.fistikhotel.model.Role;
 import com.yener.fistikhotel.model.User;
 import com.yener.fistikhotel.repository.RoleRepository;
+import com.yener.fistikhotel.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,7 +22,7 @@ class RoleServiceImplTest {
     @Mock
     RoleRepository roleRepository;
     @Mock
-    UserServiceImpl userService;
+    UserRepository userRepository;
     @InjectMocks
     RoleServiceImpl roleServiceImpl;
 
@@ -99,7 +100,7 @@ class RoleServiceImplTest {
 
     @Test
     void testRemoveUserFromRole() {
-        when(userService.findById(1L)).thenReturn(user);
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
         when(roleRepository.findById(1L)).thenReturn(optionalRole);
         when(roleRepository.save(role)).thenReturn(role);
 
@@ -113,7 +114,7 @@ class RoleServiceImplTest {
 
     @Test
     void testAssignRoleToUser() {
-        when(userService.findById(1L)).thenReturn(user);
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
         when(roleRepository.findById(1L)).thenReturn(secOptionalRole);
         when(roleRepository.save(role)).thenReturn(role);
 
@@ -129,12 +130,6 @@ class RoleServiceImplTest {
         Role result = roleServiceImpl.removeAllUsersFromRole(1L);
         assertEquals(role, result);
     }
-
-    @Test
-    void testFindUserById() {
-        when(userService.findById(1L)).thenReturn(user);
-        User result = roleServiceImpl.findUserById(Long.valueOf(1));
-        assertEquals(user,result);    }
 
     @Test
     void testFindRoleById() {
